@@ -6,9 +6,11 @@ const TodoList = () => {
   const [newItem, setNewItem] = useState("");
   const [editItemIndex, setEditItemIndex] = useState(-1);
   const [archive, setArchive] = useState([]);
+  const [editArchiveIndex, setEditArchiveIndex] = useState(-1);
 
   const addItem = (event) => {
     event.preventDefault();
+    if (newItem.trim() === "") return;
     setItems([...items, {text: newItem, done: false}]);
     setNewItem("");
   };
@@ -36,6 +38,13 @@ const TodoList = () => {
     const doneItems = items.filter((item) => item.done);
     setArchive([...archive, ...doneItems]);
     setItems(items.filter((item) => !item.done));
+  };
+
+  const editArchiveItem = (index, newText) => {
+    const newArchive = [...archive];
+    newArchive[index].text = newText;
+    setArchive(newArchive);
+    setEditArchiveIndex(-1);
   };
 
   const unarchiveItem = (index) => {
@@ -85,19 +94,27 @@ const TodoList = () => {
           <div>
             {archive.map((item, index) => (
               <div key={index}>
-                <span style={{ textDecoration: item.done ? "line-through" : "none" }}>
-                  {item.text}
-                </span>
-                <button onClick={() => setEditItemIndex(index)}>Edit</button>
-                <button onClick={() => unarchiveItem(index)}>Unarchive</button>
-                <button onClick={() => deleteArchivedItem(index)}>Delete</button>
+              {editArchiveIndex === index ? (
+                <form onSubmit={(event) => editArchiveItem(index, event.target.newText.value)}>
+                  <input className="inputText" type="text" name="newText" defaultValue={item.text} />
+                  <button type="button" onClick={() => setEditArchiveIndex(-1)}>
+                    Cancel
+                  </button>
+                </form>
+              ) : (
+                <div>
+                  <span>{item.text}</span>
+                  <button onClick={() => setEditArchiveIndex(index)}>Edit</button>
+                  <button onClick={() => unarchiveItem(index)}>Unarchive</button>
+                  <button onClick={() => deleteArchivedItem(index)}>Delete</button>
+                </div>
+                )}
               </div>
             ))}
           </div>
         </div>
-      )}
+        )}      
     </div>
-  );
-}
+   )}
 
 export default TodoList;
